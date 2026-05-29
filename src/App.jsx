@@ -58,28 +58,75 @@ function currency(value) {
 
 function PasswordBubble({ password }) {
   const checks = [
-    { id: "length", label: "Minimo de 6 caracteres", valid: password.length >= 6 },
+    { id: "length", label: "Minimo de 8 caracteres", valid: password.length >= 8 },
+    { id: "upper", label: "Uma letra maiuscula", valid: /[A-Z]/.test(password) },
+    { id: "lower", label: "Uma letra minuscula", valid: /[a-z]/.test(password) },
+    { id: "number", label: "Um numero", valid: /\d/.test(password) },
+    { id: "symbol", label: "Um caractere especial", valid: /[^A-Za-z0-9]/.test(password) },
     { id: "trim", label: "Sem espacos no inicio ou fim", valid: password.length > 0 && password === password.trim() }
   ];
   const passed = checks.filter((item) => item.valid).length;
   const percent = Math.round((passed / checks.length) * 100);
+  const strengthLabel = percent >= 84 ? "Forte" : percent >= 50 ? "Media" : "Fraca";
+  const allValid = passed === checks.length;
 
   return (
     <aside className="password-bubble" id="password-requirements" aria-live="polite">
-      <span className="bubble-signal" aria-hidden="true" />
-      <strong>Requisitos da senha</strong>
+      <div className="bubble-header">
+        <span className={`lock-icon ${allValid ? "locked" : "unlocked"}`} aria-hidden="true">
+          {allValid ? <LockIcon /> : <UnlockIcon />}
+        </span>
+        <div>
+          <strong>Seguranca da senha</strong>
+          <small>{strengthLabel}</small>
+        </div>
+      </div>
       <div className="strength-track" aria-hidden="true">
         <span style={{ width: `${percent}%` }} />
       </div>
       <ul>
         {checks.map((item) => (
           <li className={item.valid ? "is-valid" : ""} key={item.id}>
-            <span aria-hidden="true">{item.valid ? "OK" : "--"}</span>
+            <span aria-hidden="true">{item.valid ? "✓" : ""}</span>
             {item.label}
           </li>
         ))}
       </ul>
     </aside>
+  );
+}
+
+function IconBase({ children }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      focusable="false"
+    >
+      {children}
+    </svg>
+  );
+}
+
+function LockIcon() {
+  return (
+    <IconBase>
+      <rect width="18" height="11" x="3" y="11" rx="2" />
+      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+    </IconBase>
+  );
+}
+
+function UnlockIcon() {
+  return (
+    <IconBase>
+      <rect width="18" height="11" x="3" y="11" rx="2" />
+      <path d="M7 11V7a5 5 0 0 1 9.9-1" />
+    </IconBase>
   );
 }
 
@@ -129,9 +176,23 @@ function Pager({ page, totalPages, onChange }) {
   );
 }
 
+function StatCard({ label, value, detail, tone }) {
+  return (
+    <article className={`stat-card ${tone}`}>
+      <span className="stat-icon" aria-hidden="true" />
+      <div>
+        <strong>{value}</strong>
+        <span>{label}</span>
+        <small>{detail}</small>
+      </div>
+    </article>
+  );
+}
+
 function LoginScreen({ onLogin }) {
   const [mode, setMode] = useState("login");
   const [form, setForm] = useState({ email: "", senha: "" });
+  const [registerPasswordFocused, setRegisterPasswordFocused] = useState(false);
   const [registerForm, setRegisterForm] = useState({
     nome: "",
     email: "",
@@ -164,8 +225,8 @@ function LoginScreen({ onLogin }) {
     setSubmitting(true);
     setFeedback({ type: "info", message: "" });
 
-    if (registerForm.senha.length < 6) {
-      setFeedback({ type: "error", message: "A senha precisa ter no minimo 6 caracteres." });
+    if (registerForm.senha.length < 8) {
+      setFeedback({ type: "error", message: "A senha precisa ter no minimo 8 caracteres." });
       setSubmitting(false);
       return;
     }
@@ -245,7 +306,7 @@ function LoginScreen({ onLogin }) {
                 />
               </Field>
 
-              <div className="password-field-row auth-password-row">
+              <div className="auth-password-row">
                 <Field id="register-password" label="Senha">
                   <input
                     aria-describedby="password-requirements"
@@ -253,14 +314,16 @@ function LoginScreen({ onLogin }) {
                     autoComplete="new-password"
                     className="form-control"
                     id="register-password"
-                    minLength="6"
+                    minLength="8"
+                    onBlur={() => setRegisterPasswordFocused(false)}
                     onChange={(event) => setRegisterForm({ ...registerForm, senha: event.target.value })}
+                    onFocus={() => setRegisterPasswordFocused(true)}
                     required
                     type="password"
                     value={registerForm.senha}
                   />
                 </Field>
-                <PasswordBubble password={registerForm.senha} />
+                {registerPasswordFocused ? <PasswordBubble password={registerForm.senha} /> : null}
               </div>
 
               <Field id="register-confirm-password" label="Confirmar senha">
@@ -332,16 +395,6 @@ function LoginScreen({ onLogin }) {
           )}
         </div>
 
-        <aside className="login-aside" aria-label="Resumo da interface">
-          <span className="aside-badge">SPA Fullstack</span>
-          <h2>Controle rapido do inventario</h2>
-          <p>Produtos em cards responsivos, filtros por categoria e cadastro integrado diretamente com a API.</p>
-          <div className="aside-stats" aria-hidden="true">
-            <span>Produtos</span>
-            <span>Categorias</span>
-            <span>Usuarios</span>
-          </div>
-        </aside>
       </section>
     </main>
   );
@@ -359,6 +412,7 @@ export default function App() {
   const [products, setProducts] = useState([]);
   const [productPage, setProductPage] = useState(0);
   const [productTotalPages, setProductTotalPages] = useState(1);
+  const [productTotalItems, setProductTotalItems] = useState(0);
   const [productSearch, setProductSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [productForm, setProductForm] = useState(emptyProduct);
@@ -366,12 +420,14 @@ export default function App() {
   const [categories, setCategories] = useState([]);
   const [categoryPage, setCategoryPage] = useState(0);
   const [categoryTotalPages, setCategoryTotalPages] = useState(1);
+  const [categoryTotalItems, setCategoryTotalItems] = useState(0);
   const [categorySearch, setCategorySearch] = useState("");
   const [categoryForm, setCategoryForm] = useState(emptyCategory);
 
   const [users, setUsers] = useState([]);
   const [userPage, setUserPage] = useState(0);
   const [userTotalPages, setUserTotalPages] = useState(1);
+  const [userTotalItems, setUserTotalItems] = useState(0);
   const [userForm, setUserForm] = useState(emptyUser);
 
   const selectedCategory = useMemo(
@@ -403,6 +459,7 @@ export default function App() {
       setProducts(pageItems(data));
       setProductPage(data.number ?? page);
       setProductTotalPages(Math.max(data.totalPages ?? 1, 1));
+      setProductTotalItems(data.totalElements ?? pageItems(data).length);
     } catch (error) {
       notify("error", error.message);
     } finally {
@@ -417,6 +474,7 @@ export default function App() {
       setCategories(pageItems(data));
       setCategoryPage(data.number ?? page);
       setCategoryTotalPages(Math.max(data.totalPages ?? 1, 1));
+      setCategoryTotalItems(data.totalElements ?? pageItems(data).length);
     } catch (error) {
       notify("error", error.message);
     } finally {
@@ -431,6 +489,7 @@ export default function App() {
       setUsers(pageItems(data));
       setUserPage(data.number ?? page);
       setUserTotalPages(Math.max(data.totalPages ?? 1, 1));
+      setUserTotalItems(data.totalElements ?? pageItems(data).length);
     } catch (error) {
       notify("error", error.message);
     } finally {
@@ -495,8 +554,8 @@ export default function App() {
 
   async function submitUser(event) {
     event.preventDefault();
-    if (userForm.senha.length < 6) {
-      notify("error", "A senha precisa ter no minimo 6 caracteres.");
+    if (userForm.senha.length < 8) {
+      notify("error", "A senha precisa ter no minimo 8 caracteres.");
       return;
     }
 
@@ -561,6 +620,47 @@ export default function App() {
 
       <Alert feedback={feedback} />
 
+      <section className="dashboard-overview" aria-labelledby="overview-title">
+        <div className="overview-panel">
+          <span className="overview-kicker">Dashboard</span>
+          <h2 id="overview-title">Visao geral do inventario</h2>
+          <p>
+            {selectedCategory
+              ? `Produtos filtrados por ${selectedCategory.nome}.`
+              : "Acompanhe os cadastros principais e acesse rapidamente as areas da API."}
+          </p>
+          <div className="overview-actions">
+            <button className="btn btn-light" onClick={() => setActiveTab("products")} type="button">
+              Produtos
+            </button>
+            <button className="btn btn-outline-light" onClick={() => setActiveTab("categories")} type="button">
+              Categorias
+            </button>
+          </div>
+        </div>
+
+        <div className="stats-grid">
+          <StatCard
+            detail={`${products.length} exibidos agora`}
+            label="Produtos"
+            tone="products"
+            value={productTotalItems}
+          />
+          <StatCard
+            detail="Opcoes de classificacao"
+            label="Categorias"
+            tone="categories"
+            value={categoryTotalItems}
+          />
+          <StatCard
+            detail="Acessos cadastrados"
+            label="Usuarios"
+            tone="users"
+            value={userTotalItems}
+          />
+        </div>
+      </section>
+
       <nav className="tabs nav nav-pills" aria-label="Secoes da interface">
         {[
           ["products", "Produtos"],
@@ -582,8 +682,8 @@ export default function App() {
         <section className="workspace" aria-labelledby="products-title">
           <div className="section-heading">
             <div>
-              <h2 id="products-title">Produtos</h2>
-              <p>{selectedCategory ? `Filtro ativo: ${selectedCategory.nome}` : "Cards responsivos com dados reais da API."}</p>
+              <h2 id="products-title">Painel de produtos</h2>
+              <p>{selectedCategory ? `Filtro ativo: ${selectedCategory.nome}` : `${productTotalItems} produtos cadastrados.`}</p>
             </div>
             <form className="filter-row" onSubmit={(event) => {
               event.preventDefault();
@@ -617,7 +717,12 @@ export default function App() {
 
           <div className="content-grid">
             <form className="panel form-panel" onSubmit={submitProduct}>
-              <h3>{productForm.id ? "Editar produto" : "Novo produto"}</h3>
+              <div className="panel-title-row">
+                <div>
+                  <span className="panel-kicker">Cadastro</span>
+                  <h3>{productForm.id ? "Editar produto" : "Novo produto"}</h3>
+                </div>
+              </div>
               <Field id="product-name" label="Nome">
                 <input
                   className="form-control"
@@ -830,7 +935,7 @@ export default function App() {
                     aria-invalid={userForm.senha.length > 0 && userForm.senha.length < 6}
                     className="form-control"
                     id="user-password"
-                    minLength="6"
+                    minLength="8"
                     onChange={(event) => setUserForm({ ...userForm, senha: event.target.value })}
                     required
                     type="password"
