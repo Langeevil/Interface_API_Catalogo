@@ -37,7 +37,7 @@ async function request(path, options = {}) {
       const data = await response.json();
       message = data.message || data.error || message;
     } catch {
-      message = response.status === 401 ? "Usuario ou senha invalidos" : message;
+      message = response.status === 401 ? "Usuário ou senha inválidos" : message;
     }
     throw new Error(message);
   }
@@ -58,16 +58,16 @@ function currency(value) {
 
 function PasswordBubble({ password }) {
   const checks = [
-    { id: "length", label: "Minimo de 8 caracteres", valid: password.length >= 8 },
-    { id: "upper", label: "Uma letra maiuscula", valid: /[A-Z]/.test(password) },
-    { id: "lower", label: "Uma letra minuscula", valid: /[a-z]/.test(password) },
-    { id: "number", label: "Um numero", valid: /\d/.test(password) },
+    { id: "length", label: "Mínimo de 8 caracteres", valid: password.length >= 8 },
+    { id: "upper", label: "Uma letra maiúscula", valid: /[A-Z]/.test(password) },
+    { id: "lower", label: "Uma letra minúscula", valid: /[a-z]/.test(password) },
+    { id: "number", label: "Um número", valid: /\d/.test(password) },
     { id: "symbol", label: "Um caractere especial", valid: /[^A-Za-z0-9]/.test(password) },
-    { id: "trim", label: "Sem espacos no inicio ou fim", valid: password.length > 0 && password === password.trim() }
+    { id: "trim", label: "Sem espaços no início ou fim", valid: password.length > 0 && password === password.trim() }
   ];
   const passed = checks.filter((item) => item.valid).length;
   const percent = Math.round((passed / checks.length) * 100);
-  const strengthLabel = percent >= 84 ? "Forte" : percent >= 50 ? "Media" : "Fraca";
+  const strengthLabel = percent >= 84 ? "Forte" : percent >= 50 ? "Média" : "Fraca";
   const allValid = passed === checks.length;
 
   return (
@@ -77,7 +77,7 @@ function PasswordBubble({ password }) {
           {allValid ? <LockIcon /> : <UnlockIcon />}
         </span>
         <div>
-          <strong>Seguranca da senha</strong>
+          <strong>Segurança da senha</strong>
           <small>{strengthLabel}</small>
         </div>
       </div>
@@ -157,12 +157,12 @@ function Field({ id, label, children, hint }) {
 
 function Pager({ page, totalPages, onChange }) {
   return (
-    <div className="pager" aria-label="Paginacao">
+    <div className="pager" aria-label="Paginação">
       <button className="btn btn-outline-secondary" disabled={page <= 0} onClick={() => onChange(page - 1)} type="button">
         Anterior
       </button>
       <span>
-        Pagina {page + 1} de {totalPages}
+        Página {page + 1} de {totalPages}
       </span>
       <button
         className="btn btn-outline-secondary"
@@ -170,22 +170,55 @@ function Pager({ page, totalPages, onChange }) {
         onClick={() => onChange(page + 1)}
         type="button"
       >
-        Proxima
+        Próxima
       </button>
     </div>
   );
 }
 
-function StatCard({ label, value, detail, tone }) {
+function StatCard({ label, value, detail, tone, icon }) {
   return (
     <article className={`stat-card ${tone}`}>
-      <span className="stat-icon" aria-hidden="true" />
+      <span className="stat-icon" aria-hidden="true">
+        {icon === "box" ? <BoxIcon /> : null}
+        {icon === "tag" ? <TagIcon /> : null}
+        {icon === "user" ? <UserIcon /> : null}
+      </span>
       <div>
         <strong>{value}</strong>
         <span>{label}</span>
         <small>{detail}</small>
       </div>
     </article>
+  );
+}
+
+function BoxIcon() {
+  return (
+    <svg viewBox="0 0 24 24" focusable="false">
+      <path d="M4 7.5 12 3l8 4.5-8 4.5-8-4.5Z" />
+      <path d="M4 7.5V16l8 5 8-5V7.5" />
+      <path d="M12 12v9" />
+      <path d="m8 5.25 8 4.5" />
+    </svg>
+  );
+}
+
+function TagIcon() {
+  return (
+    <svg viewBox="0 0 24 24" focusable="false">
+      <path d="M20.5 13.5 13.5 20.5a2 2 0 0 1-2.8 0L3 12.8V3h9.8l7.7 7.7a2 2 0 0 1 0 2.8Z" />
+      <path d="M7.5 7.5h.01" />
+    </svg>
+  );
+}
+
+function UserIcon() {
+  return (
+    <svg viewBox="0 0 24 24" focusable="false">
+      <path d="M20 21a8 8 0 0 0-16 0" />
+      <path d="M12 13a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z" />
+    </svg>
   );
 }
 
@@ -214,7 +247,7 @@ function LoginScreen({ onLogin }) {
       });
       onLogin(user);
     } catch (error) {
-      setFeedback({ type: "error", message: "Usuario ou senha invalidos" });
+      setFeedback({ type: "error", message: "Usuário ou senha inválidos" });
     } finally {
       setSubmitting(false);
     }
@@ -226,13 +259,13 @@ function LoginScreen({ onLogin }) {
     setFeedback({ type: "info", message: "" });
 
     if (registerForm.senha.length < 8) {
-      setFeedback({ type: "error", message: "A senha precisa ter no minimo 8 caracteres." });
+      setFeedback({ type: "error", message: "A senha precisa ter no mínimo 8 caracteres." });
       setSubmitting(false);
       return;
     }
 
     if (registerForm.senha !== registerForm.confirmarSenha) {
-      setFeedback({ type: "error", message: "A confirmacao de senha nao confere." });
+      setFeedback({ type: "error", message: "A confirmação de senha não confere." });
       setSubmitting(false);
       return;
     }
@@ -270,11 +303,11 @@ function LoginScreen({ onLogin }) {
     <main className="login-page">
       <section className="login-card" aria-labelledby="login-title">
         <div className="login-main">
-          <p className="eyebrow">Inventario Fatec</p>
+        <p className="eyebrow">Inventário Fatec</p>
           <h1 id="login-title">{isRegister ? "Criar conta" : "Acesso ao painel"}</h1>
           <p className="login-copy">
             {isRegister
-              ? "Cadastre um usuario para acessar o painel de gerenciamento."
+              ? "Cadastre um usuário para acessar o painel de gerenciamento."
               : "Entre com seu e-mail e senha para gerenciar produtos e categorias."}
           </p>
 
@@ -310,7 +343,7 @@ function LoginScreen({ onLogin }) {
                 <Field id="register-password" label="Senha">
                   <input
                     aria-describedby="password-requirements"
-                    aria-invalid={registerForm.senha.length > 0 && registerForm.senha.length < 6}
+                    aria-invalid={registerForm.senha.length > 0 && registerForm.senha.length < 8}
                     autoComplete="new-password"
                     className="form-control"
                     id="register-password"
@@ -347,7 +380,7 @@ function LoginScreen({ onLogin }) {
               </button>
 
               <p className="auth-switch">
-                Ja possui conta?{" "}
+                Já possui conta?{" "}
                 <button className="link-button" onClick={() => switchMode("login")} type="button">
                   Entrar aqui
                 </button>
@@ -429,6 +462,7 @@ export default function App() {
   const [userTotalPages, setUserTotalPages] = useState(1);
   const [userTotalItems, setUserTotalItems] = useState(0);
   const [userForm, setUserForm] = useState(emptyUser);
+  const [userPasswordFocused, setUserPasswordFocused] = useState(false);
 
   const selectedCategory = useMemo(
     () => categories.find((category) => String(category.id) === String(categoryFilter)),
@@ -555,7 +589,7 @@ export default function App() {
   async function submitUser(event) {
     event.preventDefault();
     if (userForm.senha.length < 8) {
-      notify("error", "A senha precisa ter no minimo 8 caracteres.");
+      notify("error", "A senha precisa ter no mínimo 8 caracteres.");
       return;
     }
 
@@ -570,7 +604,7 @@ export default function App() {
         })
       });
       setUserForm(emptyUser);
-      notify("success", "Usuario cadastrado.");
+      notify("success", "Usuário cadastrado.");
       await loadUsers(0);
     } catch (error) {
       notify("error", error.message);
@@ -590,7 +624,7 @@ export default function App() {
   async function removeCategory(id) {
     try {
       await request(apiUrl(`/api/categorias/${id}`), { method: "DELETE" });
-      notify("success", "Categoria excluida.");
+      notify("success", "Categoria excluída.");
       await loadCategories(categoryPage);
       await loadProducts(productPage);
     } catch (error) {
@@ -606,8 +640,8 @@ export default function App() {
     <main className="app-shell">
       <header className="app-header">
         <div>
-          <p className="eyebrow">Inventario Fatec</p>
-          <h1>Gerenciamento de inventario</h1>
+          <p className="eyebrow">Inventário Fatec</p>
+          <h1>Gerenciamento de inventário</h1>
         </div>
         <div className="header-actions">
           <span className={loading ? "sync-dot active" : "sync-dot"} aria-hidden="true" />
@@ -623,38 +657,33 @@ export default function App() {
       <section className="dashboard-overview" aria-labelledby="overview-title">
         <div className="overview-panel">
           <span className="overview-kicker">Dashboard</span>
-          <h2 id="overview-title">Visao geral do inventario</h2>
+          <h2 id="overview-title">Visão geral do inventário</h2>
           <p>
             {selectedCategory
               ? `Produtos filtrados por ${selectedCategory.nome}.`
-              : "Acompanhe os cadastros principais e acesse rapidamente as areas da API."}
+              : "Acompanhe os cadastros principais e acesse rapidamente as áreas da API."}
           </p>
-          <div className="overview-actions">
-            <button className="btn btn-light" onClick={() => setActiveTab("products")} type="button">
-              Produtos
-            </button>
-            <button className="btn btn-outline-light" onClick={() => setActiveTab("categories")} type="button">
-              Categorias
-            </button>
-          </div>
         </div>
 
         <div className="stats-grid">
           <StatCard
-            detail={`${products.length} exibidos agora`}
+            detail="Cadastrados no inventário"
+            icon="box"
             label="Produtos"
             tone="products"
             value={productTotalItems}
           />
           <StatCard
-            detail="Opcoes de classificacao"
+            detail="Opções de classificação"
+            icon="tag"
             label="Categorias"
             tone="categories"
             value={categoryTotalItems}
           />
           <StatCard
             detail="Acessos cadastrados"
-            label="Usuarios"
+            icon="user"
+            label="Usuários"
             tone="users"
             value={userTotalItems}
           />
@@ -665,7 +694,7 @@ export default function App() {
         {[
           ["products", "Produtos"],
           ["categories", "Categorias"],
-          ["users", "Usuarios"]
+          ["users", "Usuários"]
         ].map(([id, label]) => (
           <button
             className={`nav-link ${activeTab === id ? "active" : ""}`}
@@ -733,7 +762,7 @@ export default function App() {
                   value={productForm.nome}
                 />
               </Field>
-              <Field id="product-price" label="Preco">
+              <Field id="product-price" label="Preço">
                 <input
                   className="form-control"
                   id="product-price"
@@ -773,39 +802,41 @@ export default function App() {
               </div>
             </form>
 
-            <div className="product-grid" aria-live="polite">
-              {products.length ? (
-                products.map((product) => (
-                  <article className="product-card" key={product.id}>
-                    <div>
-                      <span className="category-chip">{product.categoria?.nome || "Sem categoria"}</span>
-                      <h3>{product.nome}</h3>
-                    </div>
-                    <p className="price">{currency(product.preco)}</p>
-                    <div className="button-row">
-                      <button
-                        className="btn btn-outline-secondary btn-sm"
-                        onClick={() =>
-                          setProductForm({
-                            id: product.id,
-                            nome: product.nome,
-                            preco: product.preco,
-                            categoriaId: product.categoria?.id || ""
-                          })
-                        }
-                        type="button"
-                      >
-                        Editar
-                      </button>
-                      <button className="btn btn-outline-danger btn-sm" onClick={() => removeProduct(product.id)} type="button">
-                        Excluir
-                      </button>
-                    </div>
-                  </article>
-                ))
-              ) : (
-                <div className="empty-state">Nenhum produto encontrado.</div>
-              )}
+            <div className="panel product-list-panel" aria-live="polite">
+              <div className="product-grid">
+                {products.length ? (
+                  products.map((product) => (
+                    <article className="product-card" key={product.id}>
+                      <div>
+                        <span className="category-chip">{product.categoria?.nome || "Sem categoria"}</span>
+                        <h3>{product.nome}</h3>
+                      </div>
+                      <p className="price">{currency(product.preco)}</p>
+                      <div className="button-row">
+                        <button
+                          className="btn btn-outline-secondary btn-sm"
+                          onClick={() =>
+                            setProductForm({
+                              id: product.id,
+                              nome: product.nome,
+                              preco: product.preco,
+                              categoriaId: product.categoria?.id || ""
+                            })
+                          }
+                          type="button"
+                        >
+                          Editar
+                        </button>
+                        <button className="btn btn-outline-danger btn-sm" onClick={() => removeProduct(product.id)} type="button">
+                          Excluir
+                        </button>
+                      </div>
+                    </article>
+                  ))
+                ) : (
+                  <div className="empty-state">Nenhum produto encontrado.</div>
+                )}
+              </div>
               <Pager page={productPage} totalPages={productTotalPages} onChange={loadProducts} />
             </div>
           </div>
@@ -817,7 +848,7 @@ export default function App() {
           <div className="section-heading">
             <div>
               <h2 id="categories-title">Categorias</h2>
-              <p>Gerencie as opcoes usadas no select de produtos.</p>
+              <p>Gerencie as opções usadas no select de produtos.</p>
             </div>
             <form className="filter-row" onSubmit={(event) => {
               event.preventDefault();
@@ -863,18 +894,18 @@ export default function App() {
 
             <div className="panel table-panel">
               {categories.length ? (
-                <table className="table align-middle">
+                <table className="table align-middle data-table categories-table">
                   <thead>
                     <tr>
                       <th>Categoria</th>
-                      <th>Acoes</th>
+                      <th>Ações</th>
                     </tr>
                   </thead>
                   <tbody>
                     {categories.map((category) => (
                       <tr key={category.id}>
-                        <td>{category.nome}</td>
-                        <td>
+                        <td data-label="Categoria">{category.nome}</td>
+                        <td data-label="Ações">
                           <div className="button-row">
                             <button className="btn btn-outline-secondary btn-sm" onClick={() => setCategoryForm(category)} type="button">
                               Editar
@@ -901,14 +932,14 @@ export default function App() {
         <section className="workspace" aria-labelledby="users-title">
           <div className="section-heading">
             <div>
-              <h2 id="users-title">Usuarios</h2>
-              <p>Crie usuarios com senha validada antes do envio.</p>
+              <h2 id="users-title">Usuários</h2>
+              <p>Crie usuários com senha validada antes do envio.</p>
             </div>
           </div>
 
           <div className="content-grid users-grid">
             <form className="panel form-panel" onSubmit={submitUser}>
-              <h3>Novo usuario</h3>
+              <h3>Novo usuário</h3>
               <Field id="user-name" label="Nome">
                 <input
                   className="form-control"
@@ -918,7 +949,7 @@ export default function App() {
                   value={userForm.nome}
                 />
               </Field>
-              <Field id="user-email" label="Email">
+              <Field id="user-email" label="E-mail">
                 <input
                   className="form-control"
                   id="user-email"
@@ -928,21 +959,23 @@ export default function App() {
                   value={userForm.email}
                 />
               </Field>
-              <div className="password-field-row">
+              <div className="auth-password-row">
                 <Field id="user-password" label="Senha">
                   <input
                     aria-describedby="password-requirements"
-                    aria-invalid={userForm.senha.length > 0 && userForm.senha.length < 6}
+                    aria-invalid={userForm.senha.length > 0 && userForm.senha.length < 8}
                     className="form-control"
                     id="user-password"
                     minLength="8"
+                    onBlur={() => setUserPasswordFocused(false)}
                     onChange={(event) => setUserForm({ ...userForm, senha: event.target.value })}
+                    onFocus={() => setUserPasswordFocused(true)}
                     required
                     type="password"
                     value={userForm.senha}
                   />
                 </Field>
-                <PasswordBubble password={userForm.senha} />
+                {userPasswordFocused ? <PasswordBubble password={userForm.senha} /> : null}
               </div>
               <Field id="user-role" label="Perfil">
                 <select
@@ -956,26 +989,26 @@ export default function App() {
                 </select>
               </Field>
               <button className="btn btn-primary" type="submit">
-                Criar usuario
+                Criar usuário
               </button>
             </form>
 
             <div className="panel table-panel">
               {users.length ? (
-                <table className="table align-middle">
+                <table className="table align-middle data-table users-table">
                   <thead>
                     <tr>
                       <th>Nome</th>
-                      <th>Email</th>
+                      <th>E-mail</th>
                       <th>Perfil</th>
                     </tr>
                   </thead>
                   <tbody>
                     {users.map((user) => (
                       <tr key={user.id}>
-                        <td>{user.nome}</td>
-                        <td>{user.email}</td>
-                        <td>
+                        <td data-label="Nome">{user.nome}</td>
+                        <td data-label="E-mail">{user.email}</td>
+                        <td data-label="Perfil">
                           <span className="role-pill">{user.role}</span>
                         </td>
                       </tr>
@@ -983,7 +1016,7 @@ export default function App() {
                   </tbody>
                 </table>
               ) : (
-                <div className="empty-state">Nenhum usuario encontrado.</div>
+                <div className="empty-state">Nenhum usuário encontrado.</div>
               )}
               <Pager page={userPage} totalPages={userTotalPages} onChange={loadUsers} />
             </div>

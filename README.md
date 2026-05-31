@@ -1,39 +1,97 @@
-# Interface React da API
+# Atividade Final API - Frontend
 
-Interface criada em pasta separada para consumir o projeto Spring Boot local da atividade final.
+SPA de gerenciamento de inventario desenvolvida em React + Vite para consumir a API Spring Boot da atividade final.
 
-## Como executar
+## Tecnologias
+
+- React
+- Vite
+- Bootstrap
+- Fetch API
+
+## Requisitos
+
+- Node.js instalado
+- API Spring Boot rodando
+- PostgreSQL configurado para a API
+
+Por padrao, a interface espera a API em:
+
+```text
+http://localhost:8081
+```
+
+## Instalar dependencias
+
+Na pasta do frontend:
 
 ```bash
 cd interface
 npm install
+```
+
+## Rodar o projeto
+
+```bash
+npm run dev
+```
+
+Tambem e possivel usar:
+
+```bash
 npm start
 ```
 
-Por padrao, o Vite usa proxy para `http://localhost:8081`.
-Se a API estiver em outra porta:
+O Vite inicia por padrao em:
+
+```text
+http://localhost:5173
+```
+
+## API em outra porta
+
+Se a API estiver em outra porta, informe o alvo antes de iniciar o frontend.
+
+PowerShell:
 
 ```bash
 $env:VITE_API_TARGET="http://localhost:8080"
-npm start
+npm run dev
 ```
 
 ## Acesso mestre
 
+A API cria automaticamente um usuario mestre na primeira inicializacao, caso ele ainda nao exista no banco:
+
 - Email: `admin@fatec.sp.gov.br`
 - Senha: `admin123`
 
-## Telas
+## Funcionalidades
 
-- Login: valida as credenciais em `/api/auth/login`.
-- Produtos: cards responsivos, busca, filtro por categoria, criacao, edicao e exclusao.
-- Categorias: listagem, busca, criacao, edicao e exclusao.
-- Usuarios: listagem e cadastro com senha criptografada pela API.
+- Tela de login com validacao visual.
+- Login validado contra a API em `/api/auth/login`.
+- Mensagem de erro quando as credenciais sao invalidas.
+- Dashboard com listagem responsiva de produtos em cards.
+- Exibicao de nome do produto, preco formatado em R$ e categoria.
+- Exclusao de produto integrada com `DELETE`.
+- Cadastro de produto com select de categorias carregado da API.
+- Filtro de produtos por categoria.
+- Cadastro de usuario com validacao de senha.
 
-## Framework CSS
+## CORS
 
-O projeto usa Bootstrap via `bootstrap` e componentes React/Vite. O CSS local apenas complementa o layout e os estados de acessibilidade.
+O backend Spring Boot foi configurado para permitir o acesso do frontend rodando em:
 
-## Acessibilidade
+```text
+http://localhost:5173
+http://127.0.0.1:5173
+http://192.168.*.*:*
+```
 
-A interface usa labels explicitos, foco visivel, contraste alto, `aria-live` para feedback e respeita `prefers-reduced-motion`.
+## Build
+
+Para gerar a versao de producao:
+
+```bash
+npm run build
+```

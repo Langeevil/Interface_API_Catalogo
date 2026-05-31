@@ -6,7 +6,7 @@ const apiTarget = process.env.VITE_API_TARGET || "http://localhost:8081";
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 5174,
+    port: 5173,
     proxy: {
       "/api": {
         target: apiTarget,
